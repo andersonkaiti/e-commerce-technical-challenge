@@ -32,18 +32,18 @@ O projeto é um **monorepo** que reúne uma **API RESTful** (Node.js) e uma **in
 
 ### Back-end
 
-- [ ] `GET /produtos` — retornar a lista de produtos disponíveis.
-- [ ] `POST /carrinho` — adicionar um produto ao carrinho.
-- [ ] `PUT /carrinho` — atualizar a quantidade de um item ou removê-lo.
-- [ ] `POST /finalizar-compra` — concluir a compra, **registrar a venda no banco** e
+- [x] `GET /produtos` — retornar a lista de produtos disponíveis.
+- [x] `POST /carrinho` — adicionar um produto ao carrinho.
+- [x] `PUT /carrinho` — atualizar a quantidade de um item ou removê-lo.
+- [x] `POST /finalizar-compra` — concluir a compra, **registrar a venda no banco** e
       **enviar e-mail de confirmação** ao usuário com os detalhes.
 
 ### Requisitos e observações
 
-- [ ] Persistência em **banco de dados relacional** (MySQL, PostgreSQL, …) para produtos e vendas.
+- [x] Persistência em **banco de dados relacional** (MySQL, PostgreSQL, …) para produtos e vendas.
 - [ ] Armazenamento temporário do carrinho (memória, cookies ou sessão) — _opcional_.
 - [ ] Sistema **seguro** contra ataques comuns.
-- [ ] Código **limpo, organizado** e seguindo boas práticas.
+- [x] Código **limpo, organizado** e seguindo boas práticas.
 - [x] Instruções claras para executar front-end e back-end em localhost.
 
 ### Diferenciais técnicos (extras)
