@@ -1,0 +1,42 @@
+{
+  "name": "e-commerce-technical-challenge",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^11.5.0",
+      "onFail": "download"
+    }
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.12",
+    "@commitlint/cli": "^21.2.2",
+    "@commitlint/config-conventional": "^21.2.2",
+    "commitlint-config-gitmoji": "^2.3.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.5.0"
+  },
+  "scripts": {
+    "format": "biome check --write",
+    "prepare": "husky"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional",
+      "gitmoji"
+    ],
+    "rules": {
+      "scope-empty": [
+        2,
+        "never"
+      ]
+    }
+  },
+  "lint-staged": {
+    "**/*.{js,jsx,ts,tsx,json,jsonc,css}": [
+      "biome check --write --no-errors-on-unmatched"
+    ]
+  }
+}
