@@ -20,18 +20,16 @@ export async function createOrderRoute(app: FastifyInstance) {
       }),
       response: {
         201: z.object({
-          message: z.string(),
+          orderId: z.uuid(),
         }),
       },
     },
     handler: async (request, reply) => {
       const createOrder = makeCreateOrder()
 
-      await createOrder.execute(request.body)
+      const { id: orderId } = await createOrder.execute(request.body)
 
-      reply.status(201).send({
-        message: 'Order created successfully!',
-      })
+      reply.status(201).send({ orderId })
     },
   })
 }

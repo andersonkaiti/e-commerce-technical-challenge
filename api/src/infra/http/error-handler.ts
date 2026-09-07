@@ -7,6 +7,7 @@ export function errorHandler(
   _request: FastifyRequest,
   reply: FastifyReply,
 ) {
+  console.log(error)
   if (hasZodFastifySchemaValidationErrors(error)) {
     return reply.status(400).send({
       error: error.message,

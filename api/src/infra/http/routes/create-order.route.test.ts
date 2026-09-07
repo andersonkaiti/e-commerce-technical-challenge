@@ -71,7 +71,7 @@ describe('POST /order (e2e)', () => {
       })
 
     expect(response.status).toBe(201)
-    expect(response.body).toEqual({ message: 'Order created successfully!' })
+    expect(response.body).toEqual({ orderId: expect.any(String) })
 
     const persisted = await db
       .select()
@@ -95,7 +95,7 @@ describe('POST /order (e2e)', () => {
       })
 
     expect(response.status).toBe(201)
-    expect(response.body).toEqual({ message: 'Order created successfully!' })
+    expect(response.body).toEqual({ orderId: expect.any(String) })
   })
 
   it('returns 400 when the customer email is invalid', async () => {

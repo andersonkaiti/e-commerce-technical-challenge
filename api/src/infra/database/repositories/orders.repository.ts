@@ -10,8 +10,11 @@ import { ordersTable } from '../drizzle/schemas/order.ts'
 import { orderProductsTable } from '../drizzle/schemas/order-products.ts'
 
 export class OrdersRepository implements IOrdersRepository {
-  async createOrder({ customerEmail, items }: IOrder): Promise<void> {
-    await db.transaction(async (tx) => {
+  async createOrder({
+    customerEmail,
+    items,
+  }: IOrder): Promise<Pick<IOrder, 'id'>> {
+    const id = await db.transaction(async (tx) => {
       const [order] = await tx
         .insert(ordersTable)
         .values({
@@ -27,7 +30,11 @@ export class OrdersRepository implements IOrdersRepository {
           priceInCents: item.priceInCents,
         })),
       )
+
+      return order.id
     })
+
+    return { id }
   }
 
   async getOrderById(orderId: string): Promise<IOrderDetails | undefined> {

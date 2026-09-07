@@ -30,7 +30,7 @@ export class CreateOrderUseCase {
       throw new NotFound('Product not found.')
     }
 
-    await this.ordersRepository.createOrder({
+    return this.ordersRepository.createOrder({
       customerEmail,
       items,
     })

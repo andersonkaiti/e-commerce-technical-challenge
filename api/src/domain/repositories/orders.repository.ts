@@ -12,7 +12,7 @@ export interface IRemoveOrderItem {
 }
 
 export interface IOrdersRepository {
-  createOrder(data: Omit<IOrder, 'id'>): Promise<void>
+  createOrder(data: Omit<IOrder, 'id'>): Promise<Pick<IOrder, 'id'>>
   getOrderById(orderId: string): Promise<IOrderDetails | undefined>
   updateItemQuantity(data: IUpdateOrderItem): Promise<void>
   removeItem(data: IRemoveOrderItem): Promise<void>
