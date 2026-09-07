@@ -1,0 +1,6 @@
+import { env } from '@shared/env.ts'
+import 'dotenv/config'
+import { drizzle } from 'drizzle-orm/node-postgres'
+import { relations } from './relations.ts'
+
+export const db = drizzle(env.DATABASE_URL, { relations })
