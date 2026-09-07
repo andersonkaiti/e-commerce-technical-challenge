@@ -1,3 +1,4 @@
+import cors from '@fastify/cors'
 import fastifySwagger from '@fastify/swagger'
 import fastifyApiReference from '@scalar/fastify-api-reference'
 import { fastify } from 'fastify'
@@ -32,6 +33,10 @@ app.register(fastifyApiReference, {
 })
 
 app.setErrorHandler(errorHandler)
+
+app.register(cors, {
+  origin: ['http://localhost:3000'],
+})
 
 app.register(createOrderRoute)
 app.register(getProductsRoute)
