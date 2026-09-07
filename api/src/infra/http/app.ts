@@ -6,6 +6,8 @@ import {
   serializerCompiler,
   validatorCompiler,
 } from 'fastify-type-provider-zod'
+import { errorHandler } from './error-handler.ts'
+import { createOrderRoute } from './routes/create-order.route.ts'
 
 export const app = fastify()
 
@@ -25,5 +27,9 @@ app.register(fastifySwagger, {
 app.register(fastifyApiReference, {
   routePrefix: '/docs',
 })
+
+app.setErrorHandler(errorHandler)
+
+app.register(createOrderRoute)
 
 app.get('/', (_request, reply) => reply.send({ message: 'E-commerce API' }))

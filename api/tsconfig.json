@@ -12,6 +12,9 @@
     "noEmit": true,
     "paths": {
       "@/*": ["./src/*"],
+      "@application/*": ["./src/application/*"],
+      "@domain/*": ["./src/domain/*"],
+      "@infra/*": ["./src/infra/*"],
       "@shared/*": ["./src/shared/*"]
     }
   }
