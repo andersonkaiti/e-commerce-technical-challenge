@@ -1,5 +1,10 @@
 import type { IOrder } from '@domain/entities/order.entity.ts'
-import type { IOrdersRepository } from '@domain/repositories/orders.repository.ts'
+import type {
+  IOrdersRepository,
+  IRemoveOrderItem,
+  IUpdateOrderItem,
+} from '@domain/repositories/orders.repository.ts'
+import { and, eq } from 'drizzle-orm'
 import { db } from '../drizzle/index.ts'
 import { ordersTable } from '../drizzle/schemas/order.ts'
 import { orderProductsTable } from '../drizzle/schemas/order-products.ts'
@@ -23,5 +28,32 @@ export class OrdersRepository implements IOrdersRepository {
         })),
       )
     })
+  }
+
+  async updateItemQuantity({
+    orderId,
+    productId,
+    quantity,
+  }: IUpdateOrderItem): Promise<void> {
+    await db
+      .update(orderProductsTable)
+      .set({ quantity })
+      .where(
+        and(
+          eq(orderProductsTable.orderId, orderId),
+          eq(orderProductsTable.productId, productId),
+        ),
+      )
+  }
+
+  async removeItem({ orderId, productId }: IRemoveOrderItem): Promise<void> {
+    await db
+      .delete(orderProductsTable)
+      .where(
+        and(
+          eq(orderProductsTable.orderId, orderId),
+          eq(orderProductsTable.productId, productId),
+        ),
+      )
   }
 }

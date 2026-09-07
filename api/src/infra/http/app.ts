@@ -9,6 +9,7 @@ import {
 import { errorHandler } from './error-handler.ts'
 import { createOrderRoute } from './routes/create-order.route.ts'
 import { getProductsRoute } from './routes/get-products.route.ts'
+import { updateOrderRoute } from './routes/update-order.route.ts'
 
 export const app = fastify()
 
@@ -33,5 +34,6 @@ app.setErrorHandler(errorHandler)
 
 app.register(createOrderRoute)
 app.register(getProductsRoute)
+app.register(updateOrderRoute)
 
 app.get('/', (_request, reply) => reply.send({ message: 'E-commerce API' }))
