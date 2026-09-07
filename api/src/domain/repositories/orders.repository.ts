@@ -1,4 +1,4 @@
-import type { IOrder } from '../entities/order.entity.ts'
+import type { IOrder, IOrderDetails } from '../entities/order.entity.ts'
 
 export interface IUpdateOrderItem {
   orderId: string
@@ -13,6 +13,7 @@ export interface IRemoveOrderItem {
 
 export interface IOrdersRepository {
   createOrder(data: Omit<IOrder, 'id'>): Promise<void>
+  getOrderById(orderId: string): Promise<IOrderDetails | undefined>
   updateItemQuantity(data: IUpdateOrderItem): Promise<void>
   removeItem(data: IRemoveOrderItem): Promise<void>
 }

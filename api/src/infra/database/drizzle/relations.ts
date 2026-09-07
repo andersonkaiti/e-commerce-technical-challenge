@@ -30,10 +30,12 @@ export const relations = defineRelations(schema, (relation) => ({
     order: relation.one.ordersTable({
       from: relation.orderProductsTable.orderId,
       to: relation.ordersTable.id,
+      optional: false,
     }),
     product: relation.one.productsTable({
       from: relation.orderProductsTable.productId,
       to: relation.productsTable.id,
+      optional: false,
     }),
   },
 }))

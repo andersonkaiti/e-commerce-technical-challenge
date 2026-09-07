@@ -1,4 +1,4 @@
-import type { IOrder } from '@domain/entities/order.entity.ts'
+import type { IOrder, IOrderDetails } from '@domain/entities/order.entity.ts'
 import type {
   IOrdersRepository,
   IRemoveOrderItem,
@@ -28,6 +28,32 @@ export class OrdersRepository implements IOrdersRepository {
         })),
       )
     })
+  }
+
+  async getOrderById(orderId: string): Promise<IOrderDetails | undefined> {
+    const order = await db.query.ordersTable.findFirst({
+      where: { id: orderId },
+      with: {
+        items: {
+          with: { product: true },
+        },
+      },
+    })
+
+    if (!order) {
+      return undefined
+    }
+
+    return {
+      id: order.id,
+      customerEmail: order.customerEmail,
+      items: order.items.map((item) => ({
+        productId: item.productId,
+        productName: item.product.name,
+        quantity: item.quantity,
+        priceInCents: item.priceInCents,
+      })),
+    }
   }
 
   async updateItemQuantity({
