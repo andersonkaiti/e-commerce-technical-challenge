@@ -5,6 +5,10 @@ import { db } from '../drizzle/index.ts'
 import { productsTable } from '../drizzle/schemas/product.ts'
 
 export class ProductsRepository implements IProductsRepository {
+  async getProducts(): Promise<IProduct[]> {
+    return db.select().from(productsTable)
+  }
+
   async getProductById(id: string): Promise<IProduct | undefined> {
     const [product] = await db
       .select()

@@ -8,6 +8,7 @@ import {
 } from 'fastify-type-provider-zod'
 import { errorHandler } from './error-handler.ts'
 import { createOrderRoute } from './routes/create-order.route.ts'
+import { getProductsRoute } from './routes/get-products.route.ts'
 
 export const app = fastify()
 
@@ -31,5 +32,6 @@ app.register(fastifyApiReference, {
 app.setErrorHandler(errorHandler)
 
 app.register(createOrderRoute)
+app.register(getProductsRoute)
 
 app.get('/', (_request, reply) => reply.send({ message: 'E-commerce API' }))
