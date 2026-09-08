@@ -4,13 +4,17 @@ import { toast } from '@components/ui/toast'
 import type { IProduct } from '@entities/product'
 import { createOrder } from '@http/create-order'
 import { finalizeOrder } from '@http/finalize-order'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { loadStoredItems, saveStoredItems } from '@utils/cart-storage'
 import { formatPrice } from '@utils/format-price'
-import { createContext, type PropsWithChildren, useState } from 'react'
+import { createContext, type PropsWithChildren } from 'react'
+
+const CART_QUERY_KEY = ['cart']
 
 interface ICartContext {
   items: IProduct[]
   subtotal: number
+  isLoading: boolean
   handleAddToCart: (product: IProduct) => void
   increaseQuantity: (productId: string) => void
   decreaseQuantity: (productId: string) => void
@@ -23,7 +27,17 @@ interface ICartContext {
 export const CartContext = createContext({} as ICartContext)
 
 export function CartProvider({ children }: PropsWithChildren) {
-  const [items, setItems] = useState<IProduct[]>([])
+  const queryClient = useQueryClient()
+
+  const { data: items = [], isLoading } = useQuery({
+    queryKey: CART_QUERY_KEY,
+    queryFn: loadStoredItems,
+  })
+
+  function updateCart(nextItems: IProduct[]) {
+    saveStoredItems(nextItems)
+    queryClient.setQueryData(CART_QUERY_KEY, nextItems)
+  }
 
   const subtotal = items.reduce(
     (total, item) => total + item.priceInCents * item.quantity,
@@ -31,23 +45,21 @@ export function CartProvider({ children }: PropsWithChildren) {
   )
 
   function clearCart() {
-    setItems([])
+    updateCart([])
   }
 
   function handleAddToCart(product: IProduct) {
-    setItems((prevItems) => {
-      const existingItem = prevItems.find((item) => item.id === product.id)
+    const existingItem = items.find((item) => item.id === product.id)
 
-      if (existingItem) {
-        return prevItems.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item,
-        )
-      }
-
-      return [...prevItems, { ...product, quantity: 1 }]
-    })
+    updateCart(
+      existingItem
+        ? items.map((item) =>
+            item.id === product.id
+              ? { ...item, quantity: item.quantity + 1 }
+              : item,
+          )
+        : [...items, { ...product, quantity: 1 }],
+    )
 
     toast.add({
       title: `${product.name} adicionado com sucesso!`,
@@ -56,16 +68,16 @@ export function CartProvider({ children }: PropsWithChildren) {
   }
 
   function increaseQuantity(productId: string) {
-    setItems((prevItems) =>
-      prevItems.map((item) =>
+    updateCart(
+      items.map((item) =>
         item.id === productId ? { ...item, quantity: item.quantity + 1 } : item,
       ),
     )
   }
 
   function decreaseQuantity(productId: string) {
-    setItems((prevItems) =>
-      prevItems.map((item) =>
+    updateCart(
+      items.map((item) =>
         item.id === productId && item.quantity > 1
           ? { ...item, quantity: item.quantity - 1 }
           : item,
@@ -74,7 +86,7 @@ export function CartProvider({ children }: PropsWithChildren) {
   }
 
   function removeFromCart(productId: string) {
-    setItems((prevItems) => prevItems.filter((item) => item.id !== productId))
+    updateCart(items.filter((item) => item.id !== productId))
   }
 
   const { mutateAsync: finalizePurchase, isPending: isFinalizingPurchase } =
@@ -110,6 +122,7 @@ export function CartProvider({ children }: PropsWithChildren) {
       value={{
         items,
         subtotal,
+        isLoading,
         handleAddToCart,
         increaseQuantity,
         decreaseQuantity,

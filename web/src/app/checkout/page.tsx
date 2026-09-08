@@ -4,12 +4,13 @@ import { Button } from '@components/ui/button'
 import { useCart } from '@hooks/use-cart'
 import { useRouter } from 'next/navigation'
 import { CheckoutForm } from './_components/checkout-form'
+import { CheckoutSkeleton } from './_components/checkout-skeleton'
 import { OrderSummary } from './_components/order-summary'
 
 export default function CheckoutPage() {
   const router = useRouter()
 
-  const { items } = useCart()
+  const { items, isLoading } = useCart()
 
   const isEmpty = items.length === 0
 
@@ -23,7 +24,9 @@ export default function CheckoutPage() {
         </Button>
       </div>
 
-      {isEmpty ? (
+      {isLoading ? (
+        <CheckoutSkeleton />
+      ) : isEmpty ? (
         <p className="text-muted-foreground">Seu carrinho está vazio.</p>
       ) : (
         <>
