@@ -9,7 +9,7 @@ import {
 import { getProducts } from '@http/get-products'
 import { formatPrice } from '@utils/format-price'
 import Image from 'next/image'
-import { AddProduct } from './add-product'
+import { AddProduct } from '../add-product'
 
 export async function Products() {
   const { data: products } = await getProducts()
