@@ -113,13 +113,11 @@ describe('PUT /order (e2e)', () => {
   })
 
   it('returns 400 when the order id is not a valid uuid', async () => {
-    const response = await request(app.server)
-      .put('/order')
-      .send({
-        orderId: 'not-a-uuid',
-        productId: productToUpdateId,
-        quantity: 1,
-      })
+    const response = await request(app.server).put('/order').send({
+      orderId: 'not-a-uuid',
+      productId: productToUpdateId,
+      quantity: 1,
+    })
 
     expect(response.status).toBe(400)
   })
