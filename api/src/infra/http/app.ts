@@ -49,8 +49,8 @@ app.register(fastifyApiReference, {
 app.setErrorHandler(errorHandler)
 
 app.register(cors, {
-  origin: ['https://e-commerce.andersonkaiti.com'],
-  allowedHeaders: ['GET', 'POST', 'PUT', 'DELETE'],
+  origin: ['https://e-commerce.andersonkaiti.com', 'http://localhost:3000'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
 })
 
 app.register(createOrderRoute)
