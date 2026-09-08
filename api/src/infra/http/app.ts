@@ -1,4 +1,6 @@
 import cors from '@fastify/cors'
+import helmet from '@fastify/helmet'
+import rateLimit from '@fastify/rate-limit'
 import fastifySwagger from '@fastify/swagger'
 import fastifyApiReference from '@scalar/fastify-api-reference'
 import { fastify } from 'fastify'
@@ -17,6 +19,15 @@ export const app = fastify()
 
 app.setValidatorCompiler(validatorCompiler)
 app.setSerializerCompiler(serializerCompiler)
+
+app.register(helmet, {
+  contentSecurityPolicy: false,
+})
+
+app.register(rateLimit, {
+  max: 100,
+  timeWindow: '1 minute',
+})
 
 app.register(fastifySwagger, {
   openapi: {
