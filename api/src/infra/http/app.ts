@@ -41,12 +41,16 @@ app.register(fastifySwagger, {
 
 app.register(fastifyApiReference, {
   routePrefix: '/docs',
+  configuration: {
+    theme: 'kepler',
+  },
 })
 
 app.setErrorHandler(errorHandler)
 
 app.register(cors, {
-  origin: ['http://localhost:3000'],
+  origin: ['https://e-commerce.andersonkaiti.com'],
+  allowedHeaders: ['GET', 'POST', 'PUT', 'DELETE'],
 })
 
 app.register(createOrderRoute)
