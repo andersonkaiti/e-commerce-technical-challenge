@@ -12,7 +12,8 @@
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx --env-file=.env src/infra/database/drizzle/seed.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "build": "tsup"
   },
   "dependencies": {
     "@fastify/cors": "^11.3.0",
@@ -37,6 +38,7 @@
     "@types/supertest": "^7.2.1",
     "drizzle-kit": "1.0.0-rc.4",
     "supertest": "^7.2.2",
+    "tsup": "^8.5.1",
     "tsx": "^4.23.13",
     "typescript": "^7.0.2",
     "vitest": "^5.0.0"
