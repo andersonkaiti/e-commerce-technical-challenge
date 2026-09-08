@@ -1,6 +1,8 @@
+import { ThemeToggle } from '@components/theme-toggle'
 import { Toaster } from '@components/ui/toast'
 import { CartProvider } from '@contexts/cart-context'
 import { QueryProvider } from '@contexts/query-context'
+import { ThemeProvider } from '@contexts/theme-context'
 import { cn } from 'cn'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono, Inter } from 'next/font/google'
@@ -35,13 +37,27 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
         'font-sans',
         inter.variable,
       )}
+      suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col">
-        <QueryProvider>
-          <Toaster>
-            <CartProvider>{children}</CartProvider>
-          </Toaster>
-        </QueryProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <QueryProvider>
+            <Toaster>
+              <CartProvider>
+                <div className="absolute top-4 right-4">
+                  <ThemeToggle />
+                </div>
+
+                {children}
+              </CartProvider>
+            </Toaster>
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
