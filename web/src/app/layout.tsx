@@ -1,3 +1,5 @@
+import { Toaster } from '@components/ui/toast'
+import { CartProvider } from '@contexts/cart-context'
 import { cn } from 'cn'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono, Inter } from 'next/font/google'
@@ -33,7 +35,11 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
         inter.variable,
       )}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <Toaster>
+          <CartProvider>{children}</CartProvider>
+        </Toaster>
+      </body>
     </html>
   )
 }

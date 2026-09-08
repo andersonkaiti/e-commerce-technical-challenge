@@ -1,4 +1,3 @@
-import { Button } from '@components/ui/button'
 import {
   Card,
   CardContent,
@@ -10,6 +9,7 @@ import {
 import { getProducts } from '@http/get-products'
 import { formatPrice } from '@utils/format-price'
 import Image from 'next/image'
+import { AddProduct } from './add-product'
 
 export async function Products() {
   const { data: products } = await getProducts()
@@ -42,7 +42,7 @@ export async function Products() {
           <CardFooter className="flex flex-col justify-between gap-2 lg:flex-row">
             <span>{formatPrice(product.priceInCents)}</span>
 
-            <Button className="w-full md:w-fit">Adicionar ao carrinho</Button>
+            <AddProduct product={product} />
           </CardFooter>
         </Card>
       ))}

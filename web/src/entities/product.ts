@@ -4,4 +4,5 @@ export interface IProduct {
   description: string
   imageUrl: string
   priceInCents: number
+  quantity: number
 }
