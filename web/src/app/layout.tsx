@@ -6,6 +6,7 @@ import { ThemeProvider } from '@contexts/theme-context'
 import { cn } from 'cn'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono, Inter } from 'next/font/google'
+import type { ReactNode } from 'react'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
@@ -25,7 +26,9 @@ export const metadata: Metadata = {
   description: 'Aplicação para o processo seletivo com foco em e-commerce',
 }
 
-export default function RootLayout({ children }: LayoutProps<'/'>) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: ReactNode }>) {
   return (
     <html
       lang="pt-BR"
