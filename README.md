@@ -22,12 +22,12 @@ O projeto é um **monorepo** que reúne uma **API RESTful** (Node.js) e uma **in
 
 ### Front-end
 
-- [ ] Exibir a lista de produtos disponíveis (nome, descrição e imagem estática de exemplo).
-- [ ] Adicionar produtos ao carrinho.
-- [ ] Visualizar o carrinho com **nome**, **quantidade** e **subtotal** de cada item.
-- [ ] Atualizar a quantidade ou remover itens individualmente.
-- [ ] Visualizar o **valor total** da compra.
-- [ ] Finalizar a compra enviando os dados do carrinho ao back-end.
+- [x] Exibir a lista de produtos disponíveis (nome, descrição e imagem estática de exemplo).
+- [x] Adicionar produtos ao carrinho.
+- [x] Visualizar o carrinho com **nome**, **quantidade** e **subtotal** de cada item.
+- [x] Atualizar a quantidade ou remover itens individualmente.
+- [x] Visualizar o **valor total** da compra.
+- [x] Finalizar a compra enviando os dados do carrinho ao back-end.
 - [ ] _(Extra)_ Produtos no formato **booking** (seleção de data e horário / check-in).
 
 ### Back-end
@@ -41,8 +41,8 @@ O projeto é um **monorepo** que reúne uma **API RESTful** (Node.js) e uma **in
 ### Requisitos e observações
 
 - [x] Persistência em **banco de dados relacional** (MySQL, PostgreSQL, …) para produtos e vendas.
-- [ ] Armazenamento temporário do carrinho (memória, cookies ou sessão) — _opcional_.
-- [ ] Sistema **seguro** contra ataques comuns.
+- [x] Armazenamento temporário do carrinho (memória, cookies ou sessão) — _opcional_.
+- [x] Sistema **seguro** contra ataques comuns.
 - [x] Código **limpo, organizado** e seguindo boas práticas.
 - [x] Instruções claras para executar front-end e back-end em localhost.
 
@@ -51,8 +51,8 @@ O projeto é um **monorepo** que reúne uma **API RESTful** (Node.js) e uma **in
 - [x] [Zod](https://zod.dev) — validação.
 - [x] [Tailwind CSS](https://tailwindcss.com).
 - [x] React hooks.
-- [ ] [React Hook Form](https://react-hook-form.com).
-- [ ] [TanStack Query](https://tanstack.com/query).
+- [x] [React Hook Form](https://react-hook-form.com).
+- [x] [TanStack Query](https://tanstack.com/query).
 - [ ] [TypeORM](https://typeorm.io).
 - [ ] [NestJS](https://nestjs.com) — _(este projeto adota Fastify)_.
 
