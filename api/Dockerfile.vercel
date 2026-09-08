@@ -1,0 +1,23 @@
+FROM node:24-slim AS base
+WORKDIR /app
+RUN corepack enable && corepack prepare pnpm@11.5.0 --activate
+
+FROM base AS build
+COPY package.json ./
+RUN pnpm install --ignore-scripts
+COPY tsconfig.json tsup.config.ts ./
+COPY src ./src
+RUN pnpm build
+
+FROM base AS dependencies
+COPY package.json ./
+RUN pnpm install --prod --ignore-scripts
+
+FROM node:24-slim
+WORKDIR /app
+COPY --from=dependencies /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
+COPY package.json ./
+ENV NODE_ENV=production
+USER node
+CMD ["node", "dist/server.js"]
