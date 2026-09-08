@@ -6,7 +6,7 @@ import { makeGetProducts } from '../factories/get-products.factory.ts'
 export async function getProductsRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'GET',
-    url: '/products',
+    url: '/produtos',
     schema: {
       response: {
         200: z.array(

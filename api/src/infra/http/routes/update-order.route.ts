@@ -6,7 +6,7 @@ import { makeUpdateOrder } from '../factories/update-order.factory.ts'
 export async function updateOrderRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'PUT',
-    url: '/order',
+    url: '/carrinho',
     schema: {
       body: z.object({
         orderId: z.uuid(),

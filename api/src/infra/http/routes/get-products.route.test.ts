@@ -15,7 +15,7 @@ function makeProduct() {
   }
 }
 
-describe('GET /products (e2e)', () => {
+describe('GET /produtos (e2e)', () => {
   let productIds: string[]
 
   beforeAll(async () => {
@@ -37,7 +37,7 @@ describe('GET /products (e2e)', () => {
   })
 
   it('returns 200 with the list of products', async () => {
-    const response = await request(app.server).get('/products')
+    const response = await request(app.server).get('/produtos')
 
     expect(response.status).toBe(200)
     expect(Array.isArray(response.body)).toBe(true)

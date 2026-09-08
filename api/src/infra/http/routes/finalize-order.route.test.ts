@@ -25,7 +25,7 @@ function makeProduct() {
   }
 }
 
-describe('POST /order/finalize (e2e)', () => {
+describe('POST /finalizar-compra (e2e)', () => {
   let orderId: string
   let productId: string
 
@@ -68,7 +68,7 @@ describe('POST /order/finalize (e2e)', () => {
 
   it('finalizes the order, sends the confirmation email and returns 200', async () => {
     const response = await request(app.server)
-      .post('/order/finalize')
+      .post('/finalizar-compra')
       .send({ orderId })
 
     expect(response.status).toBe(200)
@@ -78,7 +78,7 @@ describe('POST /order/finalize (e2e)', () => {
 
   it('returns 404 when the order does not exist', async () => {
     const response = await request(app.server)
-      .post('/order/finalize')
+      .post('/finalizar-compra')
       .send({ orderId: faker.string.uuid() })
 
     expect(response.status).toBe(404)
@@ -86,7 +86,7 @@ describe('POST /order/finalize (e2e)', () => {
 
   it('returns 400 when the order id is not a valid uuid', async () => {
     const response = await request(app.server)
-      .post('/order/finalize')
+      .post('/finalizar-compra')
       .send({ orderId: 'not-a-uuid' })
 
     expect(response.status).toBe(400)

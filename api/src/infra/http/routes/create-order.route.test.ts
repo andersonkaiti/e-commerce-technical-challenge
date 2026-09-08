@@ -17,7 +17,7 @@ function makeProduct() {
   }
 }
 
-describe('POST /order (e2e)', () => {
+describe('POST /carrinho (e2e)', () => {
   let products: { id: string; priceInCents: number }[]
 
   beforeAll(async () => {
@@ -58,7 +58,7 @@ describe('POST /order (e2e)', () => {
     const quantity = faker.number.int({ min: 1, max: 10 })
 
     const response = await request(app.server)
-      .post('/order')
+      .post('/carrinho')
       .send({
         customerEmail: faker.internet.email(),
         items: [
@@ -84,7 +84,7 @@ describe('POST /order (e2e)', () => {
 
   it('creates an order with multiple items and returns 201', async () => {
     const response = await request(app.server)
-      .post('/order')
+      .post('/carrinho')
       .send({
         customerEmail: faker.internet.email(),
         items: products.map((product) => ({
@@ -100,7 +100,7 @@ describe('POST /order (e2e)', () => {
 
   it('returns 400 when the customer email is invalid', async () => {
     const response = await request(app.server)
-      .post('/order')
+      .post('/carrinho')
       .send({
         customerEmail: faker.person.fullName(),
         items: [{ productId: products[0].id, quantity: 1, priceInCents: 1000 }],
@@ -111,7 +111,7 @@ describe('POST /order (e2e)', () => {
 
   it('returns 400 when a product id is not a valid uuid', async () => {
     const response = await request(app.server)
-      .post('/order')
+      .post('/carrinho')
       .send({
         customerEmail: faker.internet.email(),
         items: [
@@ -128,7 +128,7 @@ describe('POST /order (e2e)', () => {
 
   it('returns 400 when items are missing', async () => {
     const response = await request(app.server)
-      .post('/order')
+      .post('/carrinho')
       .send({ customerEmail: faker.internet.email() })
 
     expect(response.status).toBe(400)

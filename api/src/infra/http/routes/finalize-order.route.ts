@@ -6,7 +6,7 @@ import { makeFinalizeOrder } from '../factories/finalize-order.factory.ts'
 export async function finalizeOrderRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'POST',
-    url: '/order/finalize',
+    url: '/finalizar-compra',
     schema: {
       body: z.object({
         orderId: z.uuid(),

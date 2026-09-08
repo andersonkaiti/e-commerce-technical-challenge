@@ -17,7 +17,7 @@ function makeProduct() {
   }
 }
 
-describe('PUT /order (e2e)', () => {
+describe('PUT /carrinho (e2e)', () => {
   let orderId: string
   let productToUpdateId: string
   let productToRemoveId: string
@@ -73,7 +73,7 @@ describe('PUT /order (e2e)', () => {
     const quantity = faker.number.int({ min: 2, max: 10 })
 
     const response = await request(app.server)
-      .put('/order')
+      .put('/carrinho')
       .send({ orderId, productId: productToUpdateId, quantity })
 
     expect(response.status).toBe(200)
@@ -94,7 +94,7 @@ describe('PUT /order (e2e)', () => {
 
   it('removes the item when quantity is 0 and returns 200', async () => {
     const response = await request(app.server)
-      .put('/order')
+      .put('/carrinho')
       .send({ orderId, productId: productToRemoveId, quantity: 0 })
 
     expect(response.status).toBe(200)
@@ -113,7 +113,7 @@ describe('PUT /order (e2e)', () => {
   })
 
   it('returns 400 when the order id is not a valid uuid', async () => {
-    const response = await request(app.server).put('/order').send({
+    const response = await request(app.server).put('/carrinho').send({
       orderId: 'not-a-uuid',
       productId: productToUpdateId,
       quantity: 1,

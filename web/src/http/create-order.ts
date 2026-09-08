@@ -6,5 +6,5 @@ interface ICreateOrderResponse {
 }
 
 export function createOrder(data: IOrder) {
-  return httpClient.post<ICreateOrderResponse>('/order', data)
+  return httpClient.post<ICreateOrderResponse>('/carrinho', data)
 }

@@ -6,7 +6,7 @@ import { makeCreateOrder } from '../factories/create-order.factory.ts'
 export async function createOrderRoute(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: 'POST',
-    url: '/order',
+    url: '/carrinho',
     schema: {
       body: z.object({
         customerEmail: z.email(),
