@@ -13,8 +13,11 @@ import {
 import { useCart } from '@hooks/use-cart'
 import { formatPrice } from '@utils/format-price'
 import { Minus, Plus, ShoppingCart, Trash2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export function CartSheet() {
+  const router = useRouter()
+
   const {
     items,
     subtotal,
@@ -106,6 +109,13 @@ export function CartSheet() {
                 <span>Total</span>
                 <span>{formatPrice(subtotal)}</span>
               </div>
+
+              <Button
+                className="w-full"
+                onClick={() => router.push('/checkout')}
+              >
+                Ir para o resumo
+              </Button>
             </SheetFooter>
           </>
         )}

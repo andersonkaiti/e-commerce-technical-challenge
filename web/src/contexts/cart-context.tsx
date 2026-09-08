@@ -2,6 +2,9 @@
 
 import { toast } from '@components/ui/toast'
 import type { IProduct } from '@entities/product'
+import { createOrder } from '@http/create-order'
+import { finalizeOrder } from '@http/finalize-order'
+import { useMutation } from '@tanstack/react-query'
 import { formatPrice } from '@utils/format-price'
 import { createContext, type PropsWithChildren, useState } from 'react'
 
@@ -13,6 +16,8 @@ interface ICartContext {
   decreaseQuantity: (productId: string) => void
   removeFromCart: (productId: string) => void
   clearCart: () => void
+  finalizePurchase: (email: string) => Promise<void>
+  isFinalizingPurchase: boolean
 }
 
 export const CartContext = createContext({} as ICartContext)
@@ -72,6 +77,34 @@ export function CartProvider({ children }: PropsWithChildren) {
     setItems((prevItems) => prevItems.filter((item) => item.id !== productId))
   }
 
+  const { mutateAsync: finalizePurchase, isPending: isFinalizingPurchase } =
+    useMutation({
+      mutationFn: async (email: string) => {
+        const { data } = await createOrder({
+          customerEmail: email,
+          items: items.map((item) => ({
+            productId: item.id,
+            quantity: item.quantity,
+            priceInCents: item.priceInCents,
+          })),
+        })
+
+        await finalizeOrder(data.orderId)
+      },
+      onSuccess: () => {
+        toast.add({
+          title: 'Compra finalizada com sucesso!',
+          description: 'Enviamos um e-mail de confirmação com os detalhes.',
+        })
+      },
+      onError: () => {
+        toast.add({
+          title: 'Não foi possível finalizar a compra.',
+          description: 'Tente novamente em alguns instantes.',
+        })
+      },
+    })
+
   return (
     <CartContext
       value={{
@@ -82,6 +115,8 @@ export function CartProvider({ children }: PropsWithChildren) {
         decreaseQuantity,
         removeFromCart,
         clearCart,
+        finalizePurchase,
+        isFinalizingPurchase,
       }}
     >
       {children}
