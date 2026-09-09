@@ -61,41 +61,79 @@ describe('POST /carrinho (e2e)', () => {
       .post('/carrinho')
       .send({
         customerEmail: faker.internet.email(),
-        items: [
-          {
-            productId: product.id,
-            quantity,
-            priceInCents: product.priceInCents,
-          },
-        ],
+        items: [{ productId: product.id, quantity }],
       })
 
     expect(response.status).toBe(201)
-    expect(response.body).toEqual({ orderId: expect.any(String) })
+    expect(response.body).toEqual({
+      orderId: expect.any(String),
+      totalInCents: product.priceInCents * quantity,
+    })
 
     const persisted = await db
       .select()
       .from(orderProductsTable)
-      .where(eq(orderProductsTable.productId, product.id))
+      .where(eq(orderProductsTable.orderId, response.body.orderId))
 
     expect(persisted).toHaveLength(1)
     expect(persisted[0].quantity).toBe(quantity)
+    expect(persisted[0].priceInCents).toBe(product.priceInCents)
   })
 
   it('creates an order with multiple items and returns 201', async () => {
+    const items = products.map((product) => ({
+      productId: product.id,
+      quantity: faker.number.int({ min: 1, max: 5 }),
+    }))
+
+    const response = await request(app.server)
+      .post('/carrinho')
+      .send({ customerEmail: faker.internet.email(), items })
+
+    const expectedTotal = items.reduce((total, item) => {
+      const product = products.find((p) => p.id === item.productId)
+      return total + (product?.priceInCents ?? 0) * item.quantity
+    }, 0)
+
+    expect(response.status).toBe(201)
+    expect(response.body).toEqual({
+      orderId: expect.any(String),
+      totalInCents: expectedTotal,
+    })
+  })
+
+  it('ignores a tampered price and persists the price from the database', async () => {
+    const product = products[1]
+    const quantity = 3
+
     const response = await request(app.server)
       .post('/carrinho')
       .send({
         customerEmail: faker.internet.email(),
-        items: products.map((product) => ({
-          productId: product.id,
-          quantity: faker.number.int({ min: 1, max: 5 }),
-          priceInCents: product.priceInCents,
-        })),
+        // a malicious client trying to buy the product for 1 cent
+        items: [{ productId: product.id, quantity, priceInCents: 1 }],
       })
 
     expect(response.status).toBe(201)
-    expect(response.body).toEqual({ orderId: expect.any(String) })
+    expect(response.body.totalInCents).toBe(product.priceInCents * quantity)
+
+    const persisted = await db
+      .select()
+      .from(orderProductsTable)
+      .where(eq(orderProductsTable.orderId, response.body.orderId))
+
+    expect(persisted[0].priceInCents).toBe(product.priceInCents)
+  })
+
+  it('returns 404 when a product does not exist', async () => {
+    const response = await request(app.server)
+      .post('/carrinho')
+      .send({
+        customerEmail: faker.internet.email(),
+        items: [{ productId: faker.string.uuid(), quantity: 1 }],
+      })
+
+    expect(response.status).toBe(404)
   })
 
   it('returns 400 when the customer email is invalid', async () => {
@@ -103,7 +141,7 @@ describe('POST /carrinho (e2e)', () => {
       .post('/carrinho')
       .send({
         customerEmail: faker.person.fullName(),
-        items: [{ productId: products[0].id, quantity: 1, priceInCents: 1000 }],
+        items: [{ productId: products[0].id, quantity: 1 }],
       })
 
     expect(response.status).toBe(400)
@@ -114,13 +152,7 @@ describe('POST /carrinho (e2e)', () => {
       .post('/carrinho')
       .send({
         customerEmail: faker.internet.email(),
-        items: [
-          {
-            productId: faker.string.alphanumeric(10),
-            quantity: 1,
-            priceInCents: 1000,
-          },
-        ],
+        items: [{ productId: faker.string.alphanumeric(10), quantity: 1 }],
       })
 
     expect(response.status).toBe(400)
@@ -132,5 +164,26 @@ describe('POST /carrinho (e2e)', () => {
       .send({ customerEmail: faker.internet.email() })
 
     expect(response.status).toBe(400)
+  })
+
+  it('returns 400 when items is an empty array', async () => {
+    const response = await request(app.server)
+      .post('/carrinho')
+      .send({ customerEmail: faker.internet.email(), items: [] })
+
+    expect(response.status).toBe(400)
+  })
+
+  it('returns 400 when quantity is zero, negative or fractional', async () => {
+    for (const quantity of [0, -1, 1.5]) {
+      const response = await request(app.server)
+        .post('/carrinho')
+        .send({
+          customerEmail: faker.internet.email(),
+          items: [{ productId: products[0].id, quantity }],
+        })
+
+      expect(response.status).toBe(400)
+    }
   })
 })
