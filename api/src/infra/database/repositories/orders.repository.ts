@@ -13,7 +13,7 @@ export class OrdersRepository implements IOrdersRepository {
   async createOrder({
     customerEmail,
     items,
-  }: IOrder): Promise<Pick<IOrder, 'id'>> {
+  }: Omit<IOrder, 'id'>): Promise<Pick<IOrder, 'id'>> {
     const id = await db.transaction(async (tx) => {
       const [order] = await tx
         .insert(ordersTable)
@@ -42,7 +42,9 @@ export class OrdersRepository implements IOrdersRepository {
       where: { id: orderId },
       with: {
         items: {
-          with: { product: true },
+          with: {
+            product: true,
+          },
         },
       },
     })
@@ -59,6 +61,7 @@ export class OrdersRepository implements IOrdersRepository {
         productName: item.product.name,
         quantity: item.quantity,
         priceInCents: item.priceInCents,
+        product: item.product,
       })),
     }
   }

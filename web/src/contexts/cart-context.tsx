@@ -97,7 +97,6 @@ export function CartProvider({ children }: PropsWithChildren) {
           items: items.map((item) => ({
             productId: item.id,
             quantity: item.quantity,
-            priceInCents: item.priceInCents,
           })),
         })
 

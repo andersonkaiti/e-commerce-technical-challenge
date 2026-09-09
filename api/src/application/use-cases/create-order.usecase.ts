@@ -7,7 +7,6 @@ interface IInput {
   items: {
     productId: string
     quantity: number
-    priceInCents: number
   }[]
 }
 
@@ -18,21 +17,37 @@ export class CreateOrderUseCase {
   ) {}
 
   async execute({ customerEmail, items }: IInput) {
-    const products = await Promise.all(
-      items.map((item) =>
-        this.productsRepository.getProductById(item.productId),
-      ),
+    const productIds = items.map((item) => item.productId)
+    const products = await this.productsRepository.getProductsByIds(productIds)
+
+    const priceByProductId = new Map(
+      products.map((product) => [product.id, product.priceInCents]),
     )
 
-    const someProductIsMissing = products.some((product) => !product)
+    const orderItems = items.map((item) => {
+      const priceInCents = priceByProductId.get(item.productId)
 
-    if (someProductIsMissing) {
-      throw new NotFound('Product not found.')
-    }
+      if (priceInCents === undefined) {
+        throw new NotFound('Product not found.')
+      }
 
-    return this.ordersRepository.createOrder({
-      customerEmail,
-      items,
+      return {
+        productId: item.productId,
+        quantity: item.quantity,
+        priceInCents,
+      }
     })
+
+    const totalInCents = orderItems.reduce(
+      (total, item) => total + item.priceInCents * item.quantity,
+      0,
+    )
+
+    const { id } = await this.ordersRepository.createOrder({
+      customerEmail,
+      items: orderItems,
+    })
+
+    return { id, totalInCents }
   }
 }

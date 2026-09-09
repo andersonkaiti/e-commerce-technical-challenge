@@ -1,6 +1,6 @@
 import type { IProduct } from '@domain/entities/product.entity.ts'
 import type { IProductsRepository } from '@domain/repositories/products.repository.ts'
-import { eq } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 import { db } from '../drizzle/index.ts'
 import { productsTable } from '../drizzle/schemas/product.ts'
 
@@ -16,5 +16,13 @@ export class ProductsRepository implements IProductsRepository {
       .where(eq(productsTable.id, id))
 
     return product
+  }
+
+  async getProductsByIds(ids: string[]): Promise<IProduct[]> {
+    if (ids.length === 0) {
+      return []
+    }
+
+    return db.select().from(productsTable).where(inArray(productsTable.id, ids))
   }
 }

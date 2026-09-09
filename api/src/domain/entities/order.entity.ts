@@ -16,5 +16,14 @@ export interface IOrderDetails {
     productName: string
     quantity: number
     priceInCents: number
+    product: {
+      id: string
+      priceInCents: number
+      createdAt: Date
+      updatedAt: Date
+      name: string
+      description: string
+      imageUrl: string
+    }
   }[]
 }
