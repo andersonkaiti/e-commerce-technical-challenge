@@ -3,7 +3,7 @@ import { db } from '@infra/database/drizzle/index.ts'
 import { ordersTable } from '@infra/database/drizzle/schemas/order.ts'
 import { orderProductsTable } from '@infra/database/drizzle/schemas/order-products.ts'
 import { productsTable } from '@infra/database/drizzle/schemas/product.ts'
-import { eq } from 'drizzle-orm'
+import { inArray } from 'drizzle-orm'
 import request from 'supertest'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { app } from '../app.ts'
@@ -27,7 +27,24 @@ function makeProduct() {
 
 describe('POST /finalizar-compra (e2e)', () => {
   let orderId: string
+  let idempotencyOrderId: string
   let productId: string
+
+  async function createOrder(priceInCents: number) {
+    const [order] = await db
+      .insert(ordersTable)
+      .values({ customerEmail: faker.internet.email() })
+      .returning()
+
+    await db.insert(orderProductsTable).values({
+      orderId: order.id,
+      productId,
+      quantity: 2,
+      priceInCents,
+    })
+
+    return order.id
+  }
 
   beforeAll(async () => {
     await app.ready()
@@ -42,37 +59,46 @@ describe('POST /finalizar-compra (e2e)', () => {
 
     productId = product.id
 
-    const [order] = await db
-      .insert(ordersTable)
-      .values({ customerEmail: faker.internet.email() })
-      .returning()
-
-    orderId = order.id
-
-    await db.insert(orderProductsTable).values({
-      orderId,
-      productId,
-      quantity: 2,
-      priceInCents: product.priceInCents,
-    })
+    orderId = await createOrder(product.priceInCents)
+    idempotencyOrderId = await createOrder(product.priceInCents)
   })
 
   afterAll(async () => {
-    // deleting the order cascades to its items
-    await db.delete(ordersTable).where(eq(ordersTable.id, orderId))
-    await db.delete(productsTable).where(eq(productsTable.id, productId))
+    // deleting the orders cascades to their items
+    await db
+      .delete(ordersTable)
+      .where(inArray(ordersTable.id, [orderId, idempotencyOrderId]))
+    await db.delete(productsTable).where(inArray(productsTable.id, [productId]))
 
     await app.close()
     await db.$client.end()
   })
 
   it('finalizes the order, sends the confirmation email and returns 200', async () => {
+    sendMailMock.mockClear()
+
     const response = await request(app.server)
       .post('/finalizar-compra')
       .send({ orderId })
 
     expect(response.status).toBe(200)
     expect(response.body).toEqual({ message: 'Order finalized successfully!' })
+    expect(sendMailMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('is idempotent: a second finalize returns 409 and sends no new email', async () => {
+    sendMailMock.mockClear()
+
+    const first = await request(app.server)
+      .post('/finalizar-compra')
+      .send({ orderId: idempotencyOrderId })
+
+    const second = await request(app.server)
+      .post('/finalizar-compra')
+      .send({ orderId: idempotencyOrderId })
+
+    expect(first.status).toBe(200)
+    expect(second.status).toBe(409)
     expect(sendMailMock).toHaveBeenCalledTimes(1)
   })
 
