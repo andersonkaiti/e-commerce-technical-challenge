@@ -85,12 +85,14 @@ O projeto é um **monorepo gerenciado com pnpm workspaces**, separando `api` e `
 
 - **Node.js** 22+ (recomendado 24+)
 - **pnpm** 11+ (o repositório declara `devEngines`; o pnpm faz o download automático se necessário)
+- **Docker** + **Docker Compose** (para subir o PostgreSQL local)
 
 ---
 
 ## 🚀 Como executar
 
-Todos os comandos são executados a partir da **raiz do projeto**.
+Todos os comandos são executados a partir da **raiz do projeto**. A API sobe em
+`http://localhost:3333` e o front-end (Next.js) em `http://localhost:3000`.
 
 ### 1. Instalar as dependências
 
@@ -98,41 +100,94 @@ Todos os comandos são executados a partir da **raiz do projeto**.
 pnpm install
 ```
 
-### 2. Configurar variáveis de ambiente
-
-Crie um arquivo `.env` na pasta `api/` (ver [Variáveis de ambiente](#-variáveis-de-ambiente)):
+### 2. Configurar as variáveis de ambiente da API
 
 ```bash
-# api/.env
-PORT=3000
+cp api/.env.example api/.env
 ```
 
-### 3. Rodar a API
+Preencha os valores conforme a tabela em [Variáveis de ambiente](#-variáveis-de-ambiente).
+Para o e-mail de confirmação, use um provedor SMTP real (ex.: uma _App Password_ do Gmail).
+
+### 3. Subir o banco de dados (PostgreSQL via Docker)
+
+```bash
+docker compose -f api/docker-compose.yml up -d
+```
+
+### 4. Rodar as migrations e popular o banco
+
+```bash
+pnpm --filter api db:migrate
+pnpm --filter api db:seed
+```
+
+### 5. Rodar a API
 
 ```bash
 pnpm --filter api dev
 ```
 
-- API disponível em `http://localhost:3000`
-- Documentação (Scalar/OpenAPI) em `http://localhost:3000/docs`
+- API disponível em `http://localhost:3333`
+- Documentação (Scalar/OpenAPI) em `http://localhost:3333/docs`
 
-### 4. Rodar o front-end
+### 6. Rodar o front-end
+
+Crie `web/.env.local` apontando para a API:
+
+```bash
+# web/.env.local
+NEXT_PUBLIC_BASE_URL=http://localhost:3333
+```
 
 ```bash
 pnpm --filter web dev
 ```
 
-- Aplicação disponível em `http://localhost:3000` (Next.js) — ajuste a porta caso conflite com a API.
+- Aplicação disponível em `http://localhost:3000`
 
 ---
 
 ## 🔐 Variáveis de ambiente
 
-Validadas em tempo de execução com Zod (`api/src/shared/env.ts`):
+### API — `api/.env`
+
+Validadas em tempo de execução com Zod (`api/src/shared/env.ts`). A API **não sobe** se
+alguma variável obrigatória estiver ausente:
 
 | Variável | Obrigatória | Padrão | Descrição |
 | --- | --- | --- | --- |
-| `PORT` | Não | `3000` | Porta HTTP da API |
+| `PORT` | Não | `3000` | Porta HTTP da API (use `3333`) |
+| `DATABASE_URL` | Sim | — | String de conexão do PostgreSQL |
+| `SMTP_HOST` | Sim | — | Host do servidor SMTP |
+| `SMTP_PORT` | Sim | — | Porta do servidor SMTP (ex.: `587`) |
+| `SMTP_USER` | Sim | — | Usuário/remetente SMTP |
+| `SMTP_PASS` | Sim | — | Senha ou _App Password_ SMTP |
+
+### Web — `web/.env.local`
+
+| Variável | Obrigatória | Padrão | Descrição |
+| --- | --- | --- | --- |
+| `NEXT_PUBLIC_BASE_URL` | Sim | — | URL base da API (`http://localhost:3333`) |
+
+---
+
+## 🧠 Decisões técnicas
+
+- **Carrinho no `localStorage` do cliente** (`web/src/utils/cart-storage.ts`): montar o
+  carrinho é um estado efêmero e específico de cada usuário, então ele vive no navegador
+  (persistido via TanStack Query). Isso dispensa sessão no servidor e mantém a API sem
+  estado — o back-end só é acionado no checkout, quando o pedido é de fato criado e finalizado.
+- **`POST` e `PUT /carrinho` são a "API de pedido" exigida pelo desafio**: o enunciado pede
+  os endpoints de adicionar item e de atualizar quantidade/remover. Ambos existem e funcionam,
+  mas hoje o front **não** chama `PUT /carrinho` — a edição de quantidade acontece no carrinho
+  local e o pedido é materializado de uma só vez no checkout. O endpoint foi mantido para
+  cumprir o contrato do desafio e permitir manipular um pedido já persistido no servidor.
+- **Preço sempre do banco**: o `POST /carrinho` ignora qualquer preço vindo do cliente e usa
+  o `priceInCents` persistido, evitando adulteração do valor da compra.
+- **Venda registrada no checkout**: o pedido nasce `pending` e só vira `paid` em
+  `POST /finalizar-compra`, que é **idempotente** — uma segunda chamada retorna `409` e não
+  reenvia o e-mail de confirmação.
 
 ---
 
