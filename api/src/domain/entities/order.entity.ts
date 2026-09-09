@@ -8,9 +8,12 @@ export interface IOrder {
   }[]
 }
 
+export type OrderStatus = 'pending' | 'paid'
+
 export interface IOrderDetails {
   id: string
   customerEmail: string
+  status: OrderStatus
   items: {
     productId: string
     productName: string

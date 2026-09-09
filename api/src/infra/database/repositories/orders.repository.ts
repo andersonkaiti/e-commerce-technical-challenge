@@ -56,6 +56,7 @@ export class OrdersRepository implements IOrdersRepository {
     return {
       id: order.id,
       customerEmail: order.customerEmail,
+      status: order.status,
       items: order.items.map((item) => ({
         productId: item.productId,
         productName: item.product.name,
@@ -64,6 +65,20 @@ export class OrdersRepository implements IOrdersRepository {
         product: item.product,
       })),
     }
+  }
+
+  async markAsPaid(orderId: string): Promise<boolean> {
+    return db.transaction(async (tx) => {
+      const updated = await tx
+        .update(ordersTable)
+        .set({ status: 'paid' })
+        .where(
+          and(eq(ordersTable.id, orderId), eq(ordersTable.status, 'pending')),
+        )
+        .returning({ id: ordersTable.id })
+
+      return updated.length > 0
+    })
   }
 
   async updateItemQuantity({

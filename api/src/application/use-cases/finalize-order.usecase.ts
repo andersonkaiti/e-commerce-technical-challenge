@@ -1,6 +1,7 @@
 import { buildOrderConfirmationEmail } from '@application/templates/order-confirmation.template.ts'
 import type { IMailProvider } from '@domain/providers/mail.provider.ts'
 import type { IOrdersRepository } from '@domain/repositories/orders.repository.ts'
+import { Conflict } from '../errors/conflict.ts'
 import { NotFound } from '../errors/not-found.ts'
 
 interface IInput {
@@ -18,6 +19,16 @@ export class FinalizeOrderUseCase {
 
     if (!order) {
       throw new NotFound('Order not found.')
+    }
+
+    if (order.status === 'paid') {
+      throw new Conflict('Order already finalized.')
+    }
+
+    const wasMarkedAsPaid = await this.ordersRepository.markAsPaid(orderId)
+
+    if (!wasMarkedAsPaid) {
+      throw new Conflict('Order already finalized.')
     }
 
     const totalInCents = order.items.reduce(
